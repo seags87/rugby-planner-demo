@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rugby-planner"
+version = "0.1.0"
+description = "Rugby Match Planner Agent using LangGraph + LangSmith"
+authors = [{name = "You"}]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+	"langgraph>=0.2.32",
+	"langchain>=0.3.0",
+	"langchain-core>=0.3.0",
+	"langsmith>=0.1.98",
+	"pydantic>=2.8",
+	"python-dotenv>=1.0.1",
+	"httpx>=0.27.0",
+	"rich>=13.7.1",
+	"langchain-openai>=0.2.0",
+	"dateparser>=1.2.0",
+	"typing_extensions>=4.9.0",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

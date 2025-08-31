@@ -1,0 +1,7 @@
+{
+  "dependencies": ["."],
+  "graphs": {
+    "rugby_planner": "./src/rugby_planner/graph.py:graph"
+  },
+  "env": "./.env"
+}
