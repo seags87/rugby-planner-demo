@@ -2,7 +2,7 @@
 
 A small, stateful agent that helps plan rugby matches, training, and recovery using live data.
 
-- Orchestration: LangGraph nodes — classify → info → tools → output (with a recovery branch)
+- Orchestration: LangGraph nodes — classify → event → advice → output (with a recovery branch)
 - Fixtures: Pitchero club calendar (live-only)
 - Location + Weather: Google Places + Google Weather (forecasts <= 10 days)
 - Tips: OpenAI for nutrition/gear and recovery plans

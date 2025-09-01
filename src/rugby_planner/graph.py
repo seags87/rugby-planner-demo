@@ -59,7 +59,7 @@ def classify_node(state: PlannerState) -> PlannerState:
     return state
 
 
-def info_node(state: PlannerState) -> PlannerState:
+def event_node(state: PlannerState) -> PlannerState:
     """Populate missing context (date/location/opponent/home_away) before tool calls.
 
     For matches, we try in this order:
@@ -151,7 +151,7 @@ def info_node(state: PlannerState) -> PlannerState:
     return state
 
 
-def tools_node(state: PlannerState) -> PlannerState:
+def advice_node(state: PlannerState) -> PlannerState:
     et = state.get("event_type", "general")
     when_str = state.get("date")
     when = date.fromisoformat(when_str) if when_str else date.today()
@@ -216,23 +216,23 @@ def output_node(state: PlannerState) -> PlannerState:
 def build_graph():
     graph = StateGraph(PlannerState)
     graph.add_node("classify", classify_node)
-    graph.add_node("info", info_node)
-    graph.add_node("tools", tools_node)
+    graph.add_node("event", event_node)
+    graph.add_node("advice", advice_node)
     graph.add_node("recovery", recovery_node)
     graph.add_node("output", output_node)
 
     graph.set_entry_point("classify")
     # Branch on injury
-    def to_info_or_recovery(state: PlannerState):
-        return "recovery" if state.get("event_type") == "recovery" else "info"
+    def to_event_or_recovery(state: PlannerState):
+        return "recovery" if state.get("event_type") == "recovery" else "event"
 
     graph.add_conditional_edges(
         "classify",
-        to_info_or_recovery,
-        {"recovery": "recovery", "info": "info"},
+        to_event_or_recovery,
+        {"recovery": "recovery", "event": "event"},
     )
-    graph.add_edge("info", "tools")
-    graph.add_edge("tools", "output")
+    graph.add_edge("event", "advice")
+    graph.add_edge("advice", "output")
     graph.add_edge("recovery", "output")
 
     # Let the platform (e.g., LangGraph Studio/Cloud) handle persistence.
