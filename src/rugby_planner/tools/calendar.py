@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 import httpx
+from langsmith import traceable
 
 # Pitchero calendar lookups: fetch JSON for months and search for fixtures.
 # Team location is inferred via Google Places and cached on disk.
@@ -17,6 +18,8 @@ DEFAULT_TEAM_NAME = os.getenv("PITCHERO_TEAM_NAME", "Ramsey (IoM)")
 PITCHERO_BASE = f"https://www.pitchero.com/data/club/{PITCHERO_CLUB_ID}/calendar"
 
 
+
+@traceable(name="calendar.fetch_fixtures", run_type="tool")
 def fetch_fixtures(year: int, month: int, *, use_cache_first: bool = True) -> Dict[str, Any]:
     """Fetch fixtures JSON from Pitchero for a given year/month.
 
@@ -50,6 +53,7 @@ def _iter_year_month(start_year: int, start_month: int, max_months: int = 24):
             month += 1
 
 
+@traceable(name="calendar.find_fixture_on_date", run_type="tool")
 def find_fixture_on_date(
     target_date: str,
     *,
@@ -72,6 +76,7 @@ def find_fixture_on_date(
     return None
 
 
+@traceable(name="calendar.find_next_fixture_by_opponent", run_type="tool")
 def find_next_fixture_by_opponent(
     opponent_substring: str,
     *,
@@ -114,6 +119,7 @@ def find_next_fixture_by_opponent(
     return None
 
 
+@traceable(name="calendar.find_next_fixture_across_months", run_type="tool")
 def find_next_fixture_across_months(
     *,
     from_date: Optional[str] = None,
@@ -242,6 +248,7 @@ def _geocode_team_via_places(team: str) -> Optional[Dict[str, Any]]:
     return None
 
 
+@traceable(name="calendar.get_team_location_name", run_type="tool")
 def get_team_location_name(team: str) -> str:
     """Return a concise "City, Country" location string for a team.
 
@@ -269,6 +276,7 @@ def get_team_location_name(team: str) -> str:
     return "Unavailable"
 
 
+@traceable(name="calendar.infer_location_from_fixture", run_type="tool")
 def infer_location_from_fixture(fixture: Dict[str, Any]) -> str:
     """Infer a friendly location string for a fixture using the home team."""
     home_team = (fixture.get("homeSide", {}) or {}).get("name") or ""

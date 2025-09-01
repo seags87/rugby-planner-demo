@@ -13,8 +13,10 @@ except Exception:
 log = logging.getLogger(__name__)
 from datetime import date
 from typing import Dict
+from langsmith import traceable
 
 
+@traceable(name="nutrition.tips", run_type="tool")
 def nutrition_tips(event_type: str, when: date, weather: Dict[str, object]) -> str:
     """Return short, practical nutrition and gear tips.
 

@@ -11,8 +11,10 @@ except Exception:
     pass
 log = logging.getLogger(__name__)
 from typing import Optional
+from langsmith import traceable
 
 
+@traceable(name="recovery.generate_plan", run_type="tool")
 def generate_recovery_plan(query: str, *, model: Optional[str] = None) -> str:
     """Generate a concise, practical recovery plan using an LLM if available.
 

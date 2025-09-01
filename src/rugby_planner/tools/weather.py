@@ -5,10 +5,12 @@ from datetime import date, timedelta
 from typing import Any, Dict, Optional
 
 import httpx
+from langsmith import traceable
 
 GOOGLE_WEATHER_BASE = "https://weather.googleapis.com/v1"
 
 
+@traceable(name="weather.get_weather", run_type="tool")
 def get_weather(location: str, for_date: Optional[date] = None) -> Dict[str, Any]:
     """Return a compact weather dict for a location and date.
 

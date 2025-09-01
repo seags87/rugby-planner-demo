@@ -12,8 +12,10 @@ except Exception:  # pragma: no cover
 
 
 log = logging.getLogger(__name__)
+from langsmith import traceable
 
 
+@traceable(name="parse.extract_fixture_query", run_type="tool")
 def extract_fixture_query(query: str, today: Optional[dt_date] = None) -> Dict[str, Optional[str]]:
     """Use an LLM to extract a target fixture date (YYYY-MM-DD) or opponent name.
 
