@@ -1,0 +1,4 @@
+{"query": "When's our next home match?", "outputs": {"expected_contains": ["=== MATCH ===", "Date:", "Location:"], "expected_regex": ["Opposition: .+ \\(H\\)"]}}
+{"query": "Who are we playing next away?", "outputs": {"expected_contains": ["=== MATCH ===", "Opposition:"]}}
+{"query": "What should I bring for training this week?", "outputs": {"expected_contains": ["=== TRAINING ===", "Weather:"]}}
+{"query": "Pulled my hamstring — plan for 10 days?", "outputs": {"expected_contains": ["=== RECOVERY ===", "Disclaimer"], "expected_regex": ["Phase 1|Days "]}}

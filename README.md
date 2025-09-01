@@ -12,7 +12,7 @@ A small, stateful agent that helps plan rugby matches, training, and recovery us
 - `src/rugby_planner/graph.py` — agent state and graph
 - `src/rugby_planner/tools/` — calendar, weather, nutrition, recovery, parse
 - `src/rugby_planner/main.py` — CLI runner
-- `src/rugby_planner/eval/` — simple evaluation scripts
+- `src/rugby_planner/eval/` — evaluation scripts and graded datasets (with golden expectations)
 - `requirements.txt` — dependencies
 
 ## Setup
@@ -75,19 +75,33 @@ python -m rugby_planner.main "Tweaked hamstring — plan for 10 days?"
 
 ## Evaluation (optional)
 
-Local:
+Local (graded by default):
 
 ```bash
 python -m rugby_planner.eval.run_eval
 ```
 
-Generate prompts from live fixtures:
+Generate a graded dataset from live fixtures:
 
 ```bash
 python -m rugby_planner.eval.generate_dataset --year 2025 --month 10 --out src/rugby_planner/eval/generated_dataset.jsonl
 ```
 
 If LangSmith is configured, the eval script will also start a run in your project.
+
+Push the bundled small graded dataset to LangSmith and log runs (includes evaluators/metrics):
+
+```bash
+python -m rugby_planner.eval.run_eval --langsmith --dataset src/rugby_planner/eval/small.jsonl --dataset-name rugby-planner-dataset
+```
+
+Required environment for LangSmith:
+
+```
+LANGSMITH_API_KEY=...
+LANGSMITH_PROJECT=rugby-planner-demo
+LANGSMITH_ENDPOINT=https://api.smith.langchain.com
+```
 
 ## Notes
 

@@ -1,89 +1,62 @@
 from __future__ import annotations
 
-# Load .env automatically for any future API keys
-try:
-    from dotenv import load_dotenv
-    load_dotenv()
-except Exception:
-    pass
-
-import argparse
-import calendar as cal
 import json
-from dataclasses import dataclass
+import argparse
 from datetime import date
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List
 
-from ..tools.calendar import fetch_fixtures, infer_location_from_fixture
-
-
-@dataclass
-class FixtureLite:
-    date: str
-    opponent: str
-    ha: str
-    location: str
+from rugby_planner.tools.calendar import fetch_fixtures
 
 
-def get_month_fixtures(year: int, month: int) -> List[FixtureLite]:
-    payload = fetch_fixtures(year, month, use_cache_first=True)
-    days = payload.get("data", {}).get("days", [])
-    out: List[FixtureLite] = []
-    for d in days:
-        for fx in d.get("fixtures", []) or []:
-            loc = infer_location_from_fixture(fx)
-            out.append(
-                FixtureLite(
-                    date=(fx.get("dateTime", "")[:10] or d.get("date") or ""),
-                    opponent=fx.get("opponent", ""),
-                    ha=fx.get("ha", ""),
-                    location=loc,
-                )
-            )
-    return out
+def build_prompts_from_month(year: int, month: int, max_items: int = 20) -> List[Dict[str, Any]]:
+    data = fetch_fixtures(year, month)
+    rows: List[Dict[str, Any]] = []
+    for day in (data.get("data", {}) or {}).get("days", []) or []:
+        d = day.get("date")
+        for fx in day.get("fixtures", []) or []:
+            opp = fx.get("opponent") or "opponent"
+            ha = (fx.get("ha") or "").lower()
+            if ha == "h":
+                q = f"When is our next home match vs {opp}?"
+            elif ha == "a":
+                q = f"When is our next away match vs {opp}?"
+            else:
+                q = f"When do we next play {opp}?"
+            item: Dict[str, Any] = {"query": q}
+            inc = ["=== MATCH ===", "Date:", "Location:"]
+            sym = (ha.upper() if ha in ("h","a") else "[HA]")
+            regex = [rf"Opposition: .* \\({sym}\\)"]
+            item["outputs"] = {"expected_contains": inc, "expected_regex": regex}
+            rows.append(item)
+            if len(rows) >= max_items:
+                return rows
+    if not rows:
+        # Fallback generic prompts with expectations
+        rows = [
+            {"query": "When's our next home match?", "outputs": {"expected_contains": ["=== MATCH ===", "Location:"]}},
+            {"query": "Who are we playing next away?", "outputs": {"expected_contains": ["Opposition:"]}},
+            {"query": "What should I bring for training this week?", "outputs": {"expected_contains": ["=== TRAINING ==="]}},
+            {"query": "Pulled my hamstring, can you give me a 10-day recovery plan?", "outputs": {"expected_contains": ["=== RECOVERY ===", "Disclaimer"]}},
+        ]
+    return rows
 
 
-def synthesize_prompts(fixtures: List[FixtureLite]) -> List[Dict[str, Any]]:
-    prompts: List[Dict[str, Any]] = []
-    for fx in fixtures:
-        # Home/away hints in text for the agent
-        if fx.ha == "h":
-            p = f"We’re at home on {fx.date} vs {fx.opponent}. What kit and nutrition do you recommend?"
-            prompts.append({"input": p, "expect_location_contains": "Isle of Man"})
-        else:
-            p = f"We’re away at {fx.opponent} on {fx.date}. What’s the forecast and what gear should I pack?"
-            # Expectation: location contains opponent city string
-            city_hint = fx.location.split(",")[0]
-            prompts.append({"input": p, "expect_location_contains": city_hint})
-
-        # Generic match prompt specifying town
-        town = fx.location.split(",")[0]
-        prompts.append({"input": f"Match in {town} this weekend — weather and kit?", "expect_location_contains": town})
-
-    # Add training & recovery examples
+def main(argv: list[str] | None = None) -> int:
+    p = argparse.ArgumentParser()
     today = date.today()
-    prompts += [
-        {"input": "Tuesday training after work — nutrition and kit?", "expect_event_type": "training"},
-        {"input": "Tweaked hamstring — recovery plan for 10 days please.", "expect_event_type": "recovery"},
-    ]
-    return prompts
+    p.add_argument("--year", type=int, default=today.year)
+    p.add_argument("--month", type=int, default=today.month)
+    p.add_argument("--out", default="src/rugby_planner/eval/generated_dataset.jsonl")
+    p.add_argument("--max-items", type=int, default=20)
+    args = p.parse_args(argv)
 
-
-def main() -> None:
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--year", type=int, default=date.today().year)
-    ap.add_argument("--month", type=int, default=date.today().month)
-    ap.add_argument("--out", type=str, default="generated_dataset.jsonl")
-    args = ap.parse_args()
-
-    fixes = get_month_fixtures(args.year, args.month)
-    rows = synthesize_prompts(fixes)
-
+    rows = build_prompts_from_month(args.year, args.month, max_items=args.max_items)
     with open(args.out, "w", encoding="utf-8") as f:
         for r in rows:
             f.write(json.dumps(r) + "\n")
-    print(f"Wrote {len(rows)} rows to {args.out}")
+    print(f"Wrote {len(rows)} examples to {args.out}")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

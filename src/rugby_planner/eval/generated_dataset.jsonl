@@ -1,8 +1,3 @@
-{"input": "We\u2019re away at Clitheroe on 2025-10-04. What\u2019s the forecast and what gear should I pack?", "expect_location_contains": "Clitheroe"}
-{"input": "Match in Clitheroe this weekend \u2014 weather and kit?", "expect_location_contains": "Clitheroe"}
-{"input": "We\u2019re away at Colne & Nelson on 2025-10-11. What\u2019s the forecast and what gear should I pack?", "expect_location_contains": "Colne"}
-{"input": "Match in Colne this weekend \u2014 weather and kit?", "expect_location_contains": "Colne"}
-{"input": "We\u2019re at home on 2025-10-18 vs Ormskirk. What kit and nutrition do you recommend?", "expect_location_contains": "Isle of Man"}
-{"input": "Match in Ramsey this weekend \u2014 weather and kit?", "expect_location_contains": "Ramsey"}
-{"input": "Tuesday training after work \u2014 nutrition and kit?", "expect_event_type": "training"}
-{"input": "Tweaked hamstring \u2014 recovery plan for 10 days please.", "expect_event_type": "recovery"}
+{"query": "When is our next away match vs Clitheroe?", "outputs": {"expected_contains": ["=== MATCH ===", "Date:", "Location:"], "expected_regex": ["Opposition: .* \\\\(A\\\\)"]}}
+{"query": "When is our next away match vs Colne & Nelson?", "outputs": {"expected_contains": ["=== MATCH ===", "Date:", "Location:"], "expected_regex": ["Opposition: .* \\\\(A\\\\)"]}}
+{"query": "When is our next home match vs Ormskirk?", "outputs": {"expected_contains": ["=== MATCH ===", "Date:", "Location:"], "expected_regex": ["Opposition: .* \\\\(H\\\\)"]}}
