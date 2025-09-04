@@ -25,7 +25,13 @@ A small, stateful agent that helps plan rugby matches, training, and recovery us
 pip install -r requirements.txt
 ```
 
-4) Configure the environment in `.env`:
+4) Install the package in editable mode (so `python -m rugby_planner...` works with the src/ layout):
+
+```bash
+pip install -e .
+```
+
+5) Configure the environment in `.env`:
 
 - GOOGLE_MAPS_API_KEY — for Places + Weather
 - PITCHERO_CLUB_ID — club ID for fixtures (e.g., 7732)
@@ -75,32 +81,29 @@ python -m rugby_planner.main "Tweaked hamstring — plan for 10 days?"
 
 ## Evaluation (optional)
 
-Local (graded by default):
+Use the lightweight evaluator with a bundled JSONL dataset.
+
+Dataset path: `src/rugby_planner/eval/rugby-planner-dataset.jsonl`
+
+- Local (prints correctness score, reason, and plan):
 
 ```bash
-python -m rugby_planner.eval.run_eval
+python -m rugby_planner.eval.simple_langsmith_eval --mode local --dataset-file src/rugby_planner/eval/rugby-planner-dataset.jsonl
 ```
 
-Generate a graded dataset from live fixtures:
+- LangSmith (uploads results to your project):
 
 ```bash
-python -m rugby_planner.eval.generate_dataset --year 2025 --month 10 --out src/rugby_planner/eval/generated_dataset.jsonl
+python -m rugby_planner.eval.simple_langsmith_eval --mode langsmith --dataset-file src/rugby_planner/eval/rugby-planner-dataset.jsonl
 ```
 
-If LangSmith is configured, the eval script will also start a run in your project.
-
-Push the bundled small graded dataset to LangSmith and log runs (includes evaluators/metrics):
-
-```bash
-python -m rugby_planner.eval.run_eval --langsmith --dataset src/rugby_planner/eval/small.jsonl --dataset-name rugby-planner-dataset
-```
-
-Required environment for LangSmith:
+Required environment for LangSmith mode:
 
 ```
 LANGSMITH_API_KEY=...
 LANGSMITH_PROJECT=rugby-planner-demo
 LANGSMITH_ENDPOINT=https://api.smith.langchain.com
+LANGSMITH_DATASET=rugby-planner-dataset
 ```
 
 ## Notes
