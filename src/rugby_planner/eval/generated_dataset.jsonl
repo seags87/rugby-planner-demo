@@ -1,3 +1,0 @@
-{"query": "When is our next away match vs Clitheroe?", "outputs": {"expected_contains": ["=== MATCH ===", "Date:", "Location:"], "expected_regex": ["Opposition: .* \\\\(A\\\\)"]}}
-{"query": "When is our next away match vs Colne & Nelson?", "outputs": {"expected_contains": ["=== MATCH ===", "Date:", "Location:"], "expected_regex": ["Opposition: .* \\\\(A\\\\)"]}}
-{"query": "When is our next home match vs Ormskirk?", "outputs": {"expected_contains": ["=== MATCH ===", "Date:", "Location:"], "expected_regex": ["Opposition: .* \\\\(H\\\\)"]}}
